@@ -3,14 +3,31 @@ import psycopg2
 from sqlalchemy import create_engine
 import pandas as pd
 
+
+class DataTransform:
+    date_columns = ['issue_date', 'last_payment_date', 'next_payment_date', 'earliest_credit_line', 'last_credit_pull_date']
+
+    def convert_columns_to_datetime(self, df):
+        """
+        Convert specified columns to month and year format.
+
+        Parameters:
+        - df: DataFrame
+        """
+        for column in DataTransform.date_columns:
+            df[column] = pd.to_datetime(df[column], errors='coerce', format='%b-%Y')
+            df[column] = df[column].dt.to_period('M')  # Extracts month and year only
+        return df
+
+
 class RDSDatabaseConnector:
     def __init__(self, file_path='credentials.yaml'):
-        # Load credentials from file
+        # Loads credentials from file
         self.credentials = self.load_credentials(file_path)
         if not self.credentials:
             raise ValueError("Failed to load credentials.")
 
-        # Set up attributes
+        # Sets up attributes
         self.host = self.credentials.get('RDS_HOST')
         self.password = self.credentials.get('RDS_PASSWORD')
         self.user = self.credentials.get('RDS_USER')
@@ -34,10 +51,10 @@ class RDSDatabaseConnector:
         if not self.engine:
             connection_string = f"postgresql://{self.user}:{self.password}@{self.host}:{self.port}/{self.database}"
             self.engine = create_engine(connection_string)
-            print("Engine initialized")
+            print("Engine initialised")
 
     def extract_loan_payments_data(self):
-        self.init_engine()  # Ensure the engine is initialized before extracting data
+        self.init_engine()  # Ensures the engine is initialized before extracting data
         loan_payments_query = "SELECT * FROM loan_payments"
         return self.execute_query(loan_payments_query)
 
@@ -57,8 +74,14 @@ class RDSDatabaseConnector:
             print(f"Error saving data to CSV: {str(e)}")
 
 
+
+
+
 test = RDSDatabaseConnector()  # Creates an instance of the RDSDatabaseConnector
-data = test.extract_loan_payments_data()  # Extract loan payments data
+data = test.extract_loan_payments_data()  # Extracts loan payments data
+transform_data = DataTransform()
+transformed_data = transform_data.convert_columns_to_datetime(data)
+
 test.save_to_csv(data) # Saves to csv file
 
 
