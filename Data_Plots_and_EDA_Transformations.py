@@ -24,11 +24,11 @@ class Plotter:
         # Creates a figure with subplots for visual comparison
         fig, axes = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
 
-        # Plots NULL values before imputation
+        # Plots null values before imputation
         sns.heatmap(null_mask_before, cmap='viridis', cbar=False, ax=axes[0])
         axes[0].set_title('NULL Values Before Imputation')
 
-        # Plots NULL values after imputation
+        # Plots null values after imputation
         sns.heatmap(null_mask_after, cmap='viridis', cbar=False, ax=axes[1])
         axes[1].set_title('NULL Values After Imputation')
 
@@ -73,11 +73,11 @@ class Plotter:
                 pass
 
 
-# class DataFrameTransform:
+
 class DataFrameTransform:
     @staticmethod
     def drop_columns_with_nulls(df, threshold=0.3):
-        # Drops columns with NULL values exceeding the threshold
+        # Drops columns with null values exceeding the threshold
         null_percentages = df.isnull().mean()
         columns_to_drop = null_percentages[null_percentages >= threshold].index
         df = df.drop(columns=columns_to_drop)
@@ -94,7 +94,7 @@ class DataFrameTransform:
         Returns:
         - df: pandas DataFrame with NULL values imputed
         """
-        # Identifies columns with numerical data (integers or floats)
+        # Identifies columns with numerical data
         numeric_columns = df.select_dtypes(include=['int', 'float', 'period[M]']).columns
 
         # Columns to impute with median
@@ -103,7 +103,7 @@ class DataFrameTransform:
         # Columns to impute with mean
         mean_columns = [col for col in numeric_columns if col not in median_columns]
 
-        # Imputes NULL values based on specified strategies for columns
+        # Imputes null values based on specified strategies for columns
         df[median_columns] = df[median_columns].fillna(df[median_columns].median())
         df[mean_columns] = df[mean_columns].fillna(df[mean_columns].mean())
 
@@ -124,7 +124,7 @@ class DataFrameTransform:
         """
         df_transformed = df.copy()
 
-        # Apply logarithmic transformation to specified columns
+        # Applies logarithmic transformation to specified columns
         for col in columns:
             if col in df.columns and df[col].min() > 0:
                 df_transformed[col] = np.log1p(df[col])
@@ -146,7 +146,7 @@ class DataFrameTransform:
         """
         df_outliers_removed = df.copy()
 
-        # Selects numeric columns (integers and floats)
+        # Selects numeric columns
         numeric_columns = df.select_dtypes(include=['int', 'float']).columns
 
         for col in numeric_columns:

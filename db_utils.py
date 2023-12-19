@@ -54,7 +54,7 @@ class RDSDatabaseConnector:
             print("Engine initialised")
 
     def extract_loan_payments_data(self):
-        self.init_engine()  # Ensures the engine is initialized before extracting data
+        self.init_engine()
         loan_payments_query = "SELECT * FROM loan_payments"
         return self.execute_query(loan_payments_query)
 
